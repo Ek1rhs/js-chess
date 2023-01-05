@@ -4,68 +4,72 @@ import { gameHandler } from './gameHandler.js';
 
 export const pieceHandle = {
    
-    handlePieceClick(handleParams){
-        console.log('handlePieceClick(handleParams)', handleParams);
-        console.log( 'oki:',$('.potential-square' ));
-        if(!gameHandler.pieceTurn(handleParams.pieceColor)){
+    handlePieceClick(pieceSettings){
+        
+        if(!gameHandler.pieceTurn(pieceSettings.pieceColor)){
             console.log('1');
             return ;
-        }else if(!this.isThereASelectedPiece()){
+        }
+     /*  van kiválasztva 
+      else if(this.isThereASelectedPiece()){
+            console.log('1.5');
+            return ;
+        } */
+        else if(!this.isThereASelectedPiece()){
             console.log('2');
-            this.setSelected(handleParams);
-            generalMovement.markPotentialSquares(handleParams);
-            generalMovement.setEventsOnPotentialSquares(handleParams);
+            this.setSelected(pieceSettings.piece);
+            generalMovement.markPotentialSquares(pieceSettings);
+            generalMovement.setEventsOnPotentialSquares(pieceSettings);
             return this;
         }
-        else if(this.ownPieceSelected(handleParams)){
+        else if(this.ownPieceSelected(pieceSettings)){
             console.log('3');
-            this.removeSelected(handleParams);
-            generalMovement.clearPotentialSquares(handleParams);
+            this.removeSelected(pieceSettings.piece);
+            generalMovement.clearPotentialSquares();
             return this;
         }
 
     },
     handlePieceMouseleave(handleParams){
-        if(gameHandler.pieceTurn(handleParams.pieceColor))this.setHoverOnExit(handleParams);
+        if(gameHandler.pieceTurn(handleParams.pieceColor))this.setHoverOnExit(handleParams.piece);
     },
 
     handlePieceMouseenter(handleParams){
-        if(gameHandler.pieceTurn(handleParams.pieceColor))this.setHoverOnEnter(handleParams);
+        if(gameHandler.pieceTurn(handleParams.pieceColor))this.setHoverOnEnter(handleParams.piece);
     },
 
     isThereASelectedPiece(){
         return $('.piece-selected');
     },
 
-    setSelected(handleParams){ 
-        handleParams.piece.parentElement.classList.remove( 'yellow' );
-        handleParams.piece.parentElement.classList.add( 'piece-selected' );
+    pieceSelected(){
+        return $('.piece-selected > .piece');
+    },
+
+    setSelected(piece){ 
+        piece.parentElement.classList.remove( 'yellow' );
+        piece.parentElement.classList.add( 'piece-selected' );
     }, 
 
-    setHoverOnEnter(handleParams){
+    setHoverOnEnter(piece){
        
-        return handleParams.piece.parentElement.classList.add( 'yellow' );
+        return piece.parentElement.classList.add( 'yellow' );
     },
 
-    setHoverOnExit(handleParams){
-        return handleParams.piece.parentElement.classList.remove( 'yellow' );
+    setHoverOnExit(piece){
+        return piece.parentElement.classList.remove( 'yellow' );
     },
     
-    removeSelected(handleParams){
-        return handleParams.piece.parentElement.classList.remove( 'piece-selected' );
+    removeSelected(){
+        return $('.piece-selected').classList.remove( 'piece-selected' );
     },
 
     ownPieceSelected(handleParams){
         return $('.piece-selected > .piece' ) === handleParams.piece;
     },
-    clearAll(){
-        $$('div').forEach(pieceBox => {
-            pieceBox.classList.remove( 'piece-selected' );
-            pieceBox.classList.remove( 'yellow' );
-            pieceBox.classList.remove( 'potential-square' );
-            pieceBox.classList.remove( 'green' );
-            pieceBox.classList.remove( 'potential-enemy' );
-        })
-    }
+
+    isTargetEnemyPiece(target){
+        return target.classList.contains('piece');
+    },
 
 }

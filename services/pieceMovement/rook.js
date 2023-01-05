@@ -7,18 +7,14 @@ export const rookMovement = {
     potentialSquares : {},
   
     setPotentialSquares(rookPiece){
-        console.log('rookPiece',rookPiece);
         this.potentialSquares = {};
         if(gameHandler.pieceTurn(rookPiece.pieceColor)){
-            this.potentialSquares = this.getAvaliableSquares(rookPiece);
-            this.setSquares(this.potentialSquares);
-            console.log('halihó',this.potentialSquares);
-            return this;
+            this.setSquares(this.getAvaliableSquares(rookPiece));
         }
     },
 
-    getAvaliableSquares(param){
-        let allPossibleSquares = this.checkAllPossibleSquares(param.piecePosition[0], param.piecePosition[1]);
+    getAvaliableSquares(rookPiece){
+        let allPossibleSquares = this.checkAllPossibleSquares(rookPiece.piecePosition[0], rookPiece.piecePosition[1]);
         return {
             forwardRows : {
                 collisionFreeSquares : this.checkCollision(allPossibleSquares.forwardRows).collisionFreeSquares, 
@@ -41,29 +37,12 @@ export const rookMovement = {
     },
 
     setSquares(verifiedSquares){
-        
         Object.values(verifiedSquares).forEach(val => {
             val.collisionFreeSquares.forEach(freeSquareId => {
                 $(`[id^="${freeSquareId}"]`).classList.add( 'potential-square');
-              //  console.log('ok', freeSquare); 
             })                   
-            if(val.possibleCollision){
-                  this.checkPossibleEnemy(val.possibleCollision);
-            }
+            if(val.possibleCollision)this.checkPossibleEnemy(val.possibleCollision);
         });        
-    },
-
-    clearSquares(rookPiece){
-        Object.values(this.potentialSquares ).forEach(val => {
-            val.collisionFreeSquares.forEach(freeSquare => {
-                $(`[id^="${freeSquare}"]`).classList.remove( 'potential-square' )
-            })                   
-            if(val.possibleCollision){
-                $(`[id^="${val.possibleCollision }"]`).classList.remove( 'potential-enemy' );
-            }
-        });
-        $(`[id^="${rookPiece.piecePosition}"]`).classList.remove( 'piece-selected' );
-        $(`[id^="${rookPiece.piecePosition}"]`).classList.remove( 'potential-square' );
     },
 
    checkAllPossibleSquares(col, row){
@@ -79,7 +58,7 @@ export const rookMovement = {
    checkCollision(arr){         
         let collisionArray = arr.filter( e => $(`[id^="${e}"]`).hasChildNodes());
         let possibleCollision = collisionArray.length === 0 ? undefined  : collisionArray[0];
-        let collisionFreeSquares = possibleCollision === undefined ? arr : arr.slice(0 , (arr.indexOf(possibleCollision)) );
+        let collisionFreeSquares = possibleCollision === undefined ? arr : arr.slice(0,(arr.indexOf(possibleCollision)));
         return {
             collisionFreeSquares , 
             possibleCollision
@@ -87,10 +66,10 @@ export const rookMovement = {
     },
 
     checkPossibleEnemy(square){
-        let PosEn = $(`[id^="${square}"]`);
-        let PosEnColor = PosEn.firstChild.getAttribute('piece-type').includes('white') ? 'white' : 'black';
-        if(PosEnColor !== this.color){ 
-            PosEn.classList.add( 'potential-enemy' ); 
+        let pieceSquare = $(`[id^="${square}"]`);
+        let pieceColor = pieceSquare.firstChild.getAttribute('piece-type').includes('white') ? 'white' : 'black';
+        if(!gameHandler.pieceTurn(pieceColor)){ 
+            pieceSquare.classList.add('potential-enemy'); 
             return true;
         }
         return undefined;
